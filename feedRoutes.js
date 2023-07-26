@@ -16,7 +16,7 @@ feedRouter.post('/', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [result] = await connection.execute('INSERT INTO Feed (title, content) VALUES (?, ?)', [title, content]);
+      const [result] = await connection.query('INSERT INTO Feed (title, content) VALUES (?, ?)', [title, content]);
       connection.release();
   
       res.status(201).json({ id: result.insertId, title, content });
@@ -36,7 +36,7 @@ feedRouter.get('/', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [rows] = await connection.execute('SELECT id, title, content FROM Feed');
+      const [rows] = await connection.query('SELECT id, title, content FROM Feed');
       connection.release();
   
       res.json(rows);
@@ -58,7 +58,7 @@ feedRouter.get('/:id', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [rows] = await connection.execute('SELECT id, title, content FROM Feed WHERE id = ?', [id]);
+      const [rows] = await connection.query('SELECT id, title, content FROM Feed WHERE id = ?', [id]);
       connection.release();
   
       if (rows.length === 0) {
@@ -85,7 +85,7 @@ feedRouter.put('/:id', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [result] = await connection.execute('UPDATE Feed SET title = ?, content = ? WHERE id = ?', [title, content, id]);
+      const [result] = await connection.query('UPDATE Feed SET title = ?, content = ? WHERE id = ?', [title, content, id]);
       connection.release();
   
       if (result.affectedRows === 0) {
@@ -113,19 +113,19 @@ feedRouter.delete('/:id', authenticateJWT, async (req, res) => {
       const connection = await pool.getConnection();
   
       // Check if the feed exists
-      const [rows] = await connection.execute('SELECT * FROM Feed WHERE id = ?', [id]);
+      const [rows] = await connection.query('SELECT * FROM Feed WHERE id = ?', [id]);
   
       if (rows.length === 0) {
         return res.status(404).json({ error: 'Feed not found' });
       }
   
       // Check if any admin has access to delete the feed
-      const [admins] = await connection.execute('SELECT id FROM User WHERE role = ?', ['Admin']);
+      const [admins] = await connection.query('SELECT id FROM User WHERE role = ?', ['Admin']);
   
       for (const admin of admins) {
         if (admin.id !== req.user.id) {
           // Super Admin should not be able to delete their own access on a feed
-          const [permissions] = await connection.execute('SELECT * FROM Feed_Permissions WHERE feed_id = ? AND user_id = ? AND can_delete = 1', [id, admin.id]);
+          const [permissions] = await connection.query('SELECT * FROM Feed_Permissions WHERE feed_id = ? AND user_id = ? AND can_delete = 1', [id, admin.id]);
   
           if (permissions.length > 0) {
             return res.status(403).json({ error: 'Access forbidden. Only the assigned admin can delete the feed.' });
@@ -134,7 +134,7 @@ feedRouter.delete('/:id', authenticateJWT, async (req, res) => {
       }
   
       // Delete the feed
-      const [result] = await connection.execute('DELETE FROM Feed WHERE id = ?', [id]);
+      const [result] = await connection.query('DELETE FROM Feed WHERE id = ?', [id]);
       connection.release();
   
       if (result.affectedRows === 0) {
