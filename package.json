@@ -1,0 +1,24 @@
+{
+  "name": "userfeed",
+  "version": "1.0.0",
+  "description": "User_Feed Application",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --experimental-modules --es-module-specifier-resolution=node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "cron": "^2.4.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.5.2",
+    "nodemon": "^3.0.1"
+  }
+}
