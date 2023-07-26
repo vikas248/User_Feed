@@ -19,7 +19,7 @@ userRouter.post('/', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [result] = await connection.execute('INSERT INTO User (name, email, password) VALUES (?, ?, ?)', [name, email, password]);
+      const [result] = await connection.query('INSERT INTO User (name, email, password) VALUES (?, ?, ?)', [name, email, password]);
       connection.release();
   
       res.status(201).json({ id: result.insertId, name, email });
@@ -39,7 +39,7 @@ userRouter.get('/', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [rows] = await connection.execute('SELECT id, name, email FROM User');
+      const [rows] = await connection.query('SELECT id, name, email FROM User');
       connection.release();
   
       res.json(rows);
@@ -61,7 +61,7 @@ userRouter.get('/:id', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [rows] = await connection.execute('SELECT id, name, email FROM User WHERE id = ?', [id]);
+      const [rows] = await connection.query('SELECT id, name, email FROM User WHERE id = ?', [id]);
       connection.release();
   
       if (rows.length === 0) {
@@ -88,7 +88,7 @@ userRouter.put('/:id', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [result] = await connection.execute('UPDATE User SET name = ?, email = ? WHERE id = ?', [name, email, id]);
+      const [result] = await connection.query('UPDATE User SET name = ?, email = ? WHERE id = ?', [name, email, id]);
       connection.release();
   
       if (result.affectedRows === 0) {
@@ -114,7 +114,7 @@ userRouter.delete('/:id', authenticateJWT, async (req, res) => {
   
     try {
       const connection = await pool.getConnection();
-      const [result] = await connection.execute('DELETE FROM User WHERE id = ?', [id]);
+      const [result] = await connection.query('DELETE FROM User WHERE id = ?', [id]);
       connection.release();
   
       if (result.affectedRows === 0) {
