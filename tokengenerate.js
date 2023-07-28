@@ -10,6 +10,7 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const user = {
+    role : "Super Admin",
     email: "superadmin@gmail.com",
     password: "super@123"
   };
