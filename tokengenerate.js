@@ -3,15 +3,21 @@ import jwt from 'jsonwebtoken'
 const app = express();
 const port = 4000;
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
 const user = {
-    email: "ayush@gmail.com",
-    password: "ayush@123"
+    email: "superadmin@gmail.com",
+    password: "super@123"
   };
 
 app.use(express.json());
 
 function generateToken(user) {
-    return jwt.sign({email: user.email, password:user.password }, 'your-secret-key', {
+    return jwt.sign({email: user.email, password:user.password }, JWT_SECRET, {
       expiresIn: '1h', // Token expires in 1 hour
     });
   }
