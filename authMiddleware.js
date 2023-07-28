@@ -7,10 +7,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 function authenticateJWT(req, res, next) {
   const token = req.header('Authorization');
+  console.log(token)
 
   if (!token) {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
+  console.log(JWT_SECRET);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
@@ -23,8 +25,6 @@ function authenticateJWT(req, res, next) {
     if (user.role !== 'Super Admin') {
         return res.status(403).json({ error: 'Access denied. Only Super Admins have access.' });
       }
-  
-
     next();
   });
 }
