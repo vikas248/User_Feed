@@ -16,37 +16,33 @@ userRouter.post('/', authenticateJWT, async (req, res) => {
     }
   
     const { name, email, password } = req.body;
-  
-    try {
-      const connection = await pool.getConnection();
-      const [result] = await connection.query('INSERT INTO User (name, email, password) VALUES (?, ?, ?)', [name, email, password]);
-      connection.release();
-  
-      res.status(201).json({ id: result.insertId, name, email });
-    } catch (error) {
-      console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+
+    const query = ('INSERT INTO User (name, email, password) VALUES (?, ?, ?)', [name, email, password]);
+
+  // Execute the query
+    pool.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error Creating users in MySQL:', err);
+        res.status(500).json({ message: 'Error creating users.' });
+      } else {
+        res.json(rows);
+      }
+    });
 });
 
 // Read all users (accessible to Super Admin)
 userRouter.get('/', authenticateJWT, async (req, res) => {
-    const { role } = req.user;
-  
-    if (role !== 'Admin' && role !== 'Super Admin') {
-      return res.status(403).json({ error: 'Access forbidden. Only Admin and Super Admin can read all users.' });
-    }
-  
-    try {
-      const connection = await pool.getConnection();
-      const [rows] = await connection.query('SELECT id, name, email FROM User');
-      connection.release();
-  
+  const query = 'SELECT * FROM user1';
+
+  // Execute the query
+  pool.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error fetching users from MySQL:', err);
+      res.status(500).json({ message: 'Error fetching users.' });
+    } else {
       res.json(rows);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
     }
+  });
 });
 
 // Read a single user by ID (accessible to Super Admin and the user itself)
@@ -58,21 +54,18 @@ userRouter.get('/:id', authenticateJWT, async (req, res) => {
     }
   
     const { id } = req.params;
-  
-    try {
-      const connection = await pool.getConnection();
-      const [rows] = await connection.query('SELECT id, name, email FROM User WHERE id = ?', [id]);
-      connection.release();
-  
-      if (rows.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
+
+    const query = ('SELECT id, name, email FROM User WHERE id = ?', [id]);
+
+  // Execute the query
+    pool.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error fetching users from MySQL:', err);
+        res.status(404).json({ message: 'Internal Server Error' });
+      } else {
+        res.json(rows);
       }
-  
-      res.json(rows[0]);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+    });
 });
 
 // Update a user by ID (accessible to Super Admin and the user itself)
@@ -85,21 +78,18 @@ userRouter.put('/:id', authenticateJWT, async (req, res) => {
   
     const { id } = req.params;
     const { name, email } = req.body;
-  
-    try {
-      const connection = await pool.getConnection();
-      const [result] = await connection.query('UPDATE User SET name = ?, email = ? WHERE id = ?', [name, email, id]);
-      connection.release();
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'User not found' });
+
+    const query = ('UPDATE User SET name = ?, email = ? WHERE id = ?', [name, email, id]);
+
+  // Execute the query
+    pool.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error updating users in MySQL:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.json(rows);
       }
-  
-      res.json({ message: 'User updated successfully' });
-    } catch (error) {
-      console.error('Error updating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+    });
 });
 
 // Delete a user by ID (accessible to Super Admin only)
@@ -111,21 +101,18 @@ userRouter.delete('/:id', authenticateJWT, async (req, res) => {
     }
   
     const { id } = req.params;
-  
-    try {
-      const connection = await pool.getConnection();
-      const [result] = await connection.query('DELETE FROM User WHERE id = ?', [id]);
-      connection.release();
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'User not found' });
+
+    const query = ('DELETE FROM User WHERE id = ?', [id]);
+
+  // Execute the query
+    pool.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error Deleting users from MySQL:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.json(rows);
       }
-  
-      res.json({ message: 'User deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+    });
 });
 
 export default userRouter;
